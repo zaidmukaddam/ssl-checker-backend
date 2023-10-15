@@ -9,8 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 def get_certificate_chain(host):
-    context = SSL.Context(SSL.SSLv23_METHOD)    
-    context.set_options(SSL.OP_NO_SSLv2 | SSL.OP_NO_SSLv3)  # Exclude older protocols for security
+    context = SSL.Context(SSL.SSLv23_METHOD) 
     connection = SSL.Connection(context, socket.socket(socket.AF_INET, socket.SOCK_STREAM))
     connection.connect((host, 443))
     connection.do_handshake()
