@@ -71,4 +71,4 @@ def get_ssl_info():
         return jsonify({"error": "Failed to fetch SSL certificate.", "details": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0",port=3000)
+    app.run(host="0.0.0.0",port=8000)
