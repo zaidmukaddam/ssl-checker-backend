@@ -26,7 +26,8 @@ def get_certificate_chain(host):
     try:
         connection.do_handshake()
     except SSL.Error as e:
-        return {"error": f"SSL Error: {str(e)}"}
+        print(f"error: SSL Error: {str(e)}")
+        return []
 
     chain = connection.get_peer_cert_chain()
     chain_data = []
@@ -60,8 +61,9 @@ def get_ssl_info():
 
     ip_address = socket.gethostbyname(hostname)
 
+    
     chain = get_certificate_chain(hostname)
-
+    
     try:
         x509 = get_certificate(hostname)
         subject = x509.get_subject()
