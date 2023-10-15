@@ -1,4 +1,4 @@
-pyOpenSSL
+pyOpenSSL==22.1.0
 Flask
 Flask-Cors
 gunicorn

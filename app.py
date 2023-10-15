@@ -8,13 +8,27 @@ import socket
 app = Flask(__name__)
 CORS(app)
 
+
 def get_certificate_chain(host):
-    context = SSL.Context(SSL.SSLv23_METHOD) 
+    context = SSL.Context(SSL.TLS_METHOD)  
+    # Allowing all protocols, then we will disable the ones we don't want
+    context.set_options(SSL.OP_ALL)
+    context.set_options(SSL.OP_NO_SSLv2) # Exclude SSLv2
+    context.set_options(SSL.OP_NO_SSLv3) # Exclude SSLv3
+
+    # If there's an issue with the cipher, it might be due to compatibility. 
+    # Try commenting out the next line to test without a set cipher.
+    context.set_cipher_list(b'HIGH:!aNULL:!MD5')
+
     connection = SSL.Connection(context, socket.socket(socket.AF_INET, socket.SOCK_STREAM))
     connection.connect((host, 443))
-    connection.do_handshake()
-    chain = connection.get_peer_cert_chain()
 
+    try:
+        connection.do_handshake()
+    except SSL.Error as e:
+        return {"error": f"SSL Error: {str(e)}"}
+
+    chain = connection.get_peer_cert_chain()
     chain_data = []
     for cert in chain:
         cert_data = {
@@ -28,8 +42,8 @@ def get_certificate_chain(host):
             "issuer": cert.get_issuer().CN
         }
         chain_data.append(cert_data)
-
     return chain_data
+
 
 def get_certificate(hostname):
     """Fetch SSL certificate details."""
@@ -52,7 +66,7 @@ def get_ssl_info():
         x509 = get_certificate(hostname)
         subject = x509.get_subject()
         issuer = x509.get_issuer()
-        
+
         return jsonify({
             "chain": chain,
             "commonName": subject.CN,
@@ -63,11 +77,12 @@ def get_ssl_info():
             "serialNumber": str(x509.get_serial_number()),
             "signatureAlgorithm": x509.get_signature_algorithm().decode("utf-8"),
             "issuer": issuer.CN,
-            "ipAddress": ip_address 
+            "ipAddress": ip_address
         })
 
     except Exception as e:
         return jsonify({"error": "Failed to fetch SSL certificate.", "details": str(e)}), 500
 
+
 if __name__ == '__main__':
-    app.run(host="0.0.0.0",port=8000)
+    app.run(host="0.0.0.0", port=8000, debug=True)
