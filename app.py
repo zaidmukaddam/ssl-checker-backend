@@ -10,7 +10,7 @@ CORS(app)
 
 
 def get_certificate_chain(host):
-    context = SSL.Context(SSL.TLS_METHOD)  
+    context = SSL.Context(SSL.TLS1_3_VERSION)  
     # Allowing all protocols, then we will disable the ones we don't want
     context.set_options(SSL.OP_ALL)
     context.set_options(SSL.OP_NO_SSLv2) # Exclude SSLv2
@@ -22,12 +22,14 @@ def get_certificate_chain(host):
 
     connection = SSL.Connection(context, socket.socket(socket.AF_INET, socket.SOCK_STREAM))
     connection.connect((host, 443))
+    print(f"Protocol: {connection.get_protocol_version_name()}")
+    print(f"Protocol: {connection.get_protocol_version()}")
 
     try:
         connection.do_handshake()
     except SSL.Error as e:
         print(f"error: SSL Error: {str(e)}")
-        return []
+        # return []
 
     chain = connection.get_peer_cert_chain()
     chain_data = []
