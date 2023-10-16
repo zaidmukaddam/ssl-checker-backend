@@ -10,11 +10,9 @@ CORS(app)
 
 
 def get_certificate_chain(host):
-    context = SSL.Context(SSL.TLS1_3_VERSION)  
+    context = SSL.Context(SSL.TLSv1_2_METHOD)  
     # Allowing all protocols, then we will disable the ones we don't want
     context.set_options(SSL.OP_ALL)
-    context.set_options(SSL.OP_NO_SSLv2) # Exclude SSLv2
-    context.set_options(SSL.OP_NO_SSLv3) # Exclude SSLv3
 
     # If there's an issue with the cipher, it might be due to compatibility. 
     # Try commenting out the next line to test without a set cipher.
